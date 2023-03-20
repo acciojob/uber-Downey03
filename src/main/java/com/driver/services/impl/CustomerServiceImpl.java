@@ -81,54 +81,21 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public void cancelTrip(Integer tripId){
 		//Cancel the trip having given trip Id and update TripBooking attributes accordingly
-		List<Driver> driverList = driverRepository2.findAll();
-		Driver theDriver = new Driver();
-		boolean driverFound = false;
-		for(Driver driver : driverList){
-			List<TripBooking> tripBookingList = driver.getTripBookingList();
-
-			for(TripBooking trip :tripBookingList){
-				if(trip.getTripBookingId() == tripId){
-					trip.setStatus(TripStatus.CANCELED);
-					theDriver = driver;
-
-					driverFound = true;
-					break;
-				}
-			}
-			if(driverFound) break;
-		}
-		Cab cab = theDriver.getCab();
-		cab.setAvailable(true);
-
-		driverRepository2.save(theDriver);
+		TripBooking tripBooking = tripBookingRepository2.findById(tripId).get();
+		tripBooking.setStatus(TripStatus.CANCELED);
+		tripBooking.getDriver().getCab().setAvailable(true);
+		tripBooking.setBill(0);
+		tripBookingRepository2.save(tripBooking);
 	}
 
 	@Override
 	public void completeTrip(Integer tripId){
 		//Complete the trip having given trip Id and update TripBooking attributes accordingly
-		List<Driver> driverList = driverRepository2.findAll();
-		Driver theDriver = new Driver();
-		boolean driverFound = false;
-		for(Driver driver : driverList){
-			List<TripBooking> tripBookingList = driver.getTripBookingList();
-
-			for(TripBooking trip :tripBookingList){
-				if(trip.getTripBookingId() == tripId){
-					trip.setStatus(TripStatus.COMPLETED);
-					theDriver = driver;
-
-					driverFound = true;
-					break;
-				}
-			}
-			if(driverFound) break;
-		}
-
-		Cab cab = theDriver.getCab();
-		cab.setAvailable(true);
-
-		driverRepository2.save(theDriver);
+		TripBooking tripBooking = tripBookingRepository2.findById(tripId).get();
+		tripBooking.setStatus(TripStatus.COMPLETED);
+		tripBooking.getDriver().getCab().setAvailable(true);
+		tripBooking.setBill(tripBooking.getDistanceInKm()*tripBooking.getDriver().getCab().getPerKmRate());
+		tripBookingRepository2.save(tripBooking);
 
 	}
 }
