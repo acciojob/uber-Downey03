@@ -1,6 +1,7 @@
 package com.driver.services.impl;
 
 import com.driver.model.*;
+import com.driver.repository.CabRepository;
 import com.driver.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Autowired
 	TripBookingRepository tripBookingRepository2;
+	@Autowired
+	CabRepository cabRepository;
 
 	@Override
 	public void register(Customer customer) {
@@ -46,8 +49,9 @@ public class CustomerServiceImpl implements CustomerService {
 	public TripBooking bookTrip(int customerId, String fromLocation, String toLocation, int distanceInKm) throws Exception{
 		//Book the driver with lowest driverId who is free (cab available variable is Boolean.TRUE). If no driver is available, throw "No cab available!" exception
 		//Avoid using SQL query
-		List<Driver> drivers = driverRepository2.findAll();
-		if(drivers.size() == 0) throw new Exception("No cab available!");
+
+		List<Cab> availableCabs = cabRepository.findAllByAvailable(true);
+		if(availableCabs.size()==0) throw new Exception("No cab available!");
 
 		TripBooking tripBooking = new TripBooking();
 
@@ -61,19 +65,17 @@ public class CustomerServiceImpl implements CustomerService {
 
 		List<Driver> availableDrivers = new ArrayList<>();
 
-		for(Driver driver : drivers){
-			Cab cab =driver.getCab();
-			if(cab.getAvailable()) availableDrivers.add(driver);
-		}
+		Driver driver = null;
 
-		Driver driver = new Driver();
+		for(Cab cab : availableCabs){
+			if(driver == null || driver.getDriverId() > cab.getDriver().getDriverId()){
 
-		for(Driver driver1 : availableDrivers){
-			if(driver1.getDriverId() < driver.getDriverId()) driver = driver1;
+				driver = cab.getDriver();
+			}
 		}
 
 		tripBooking.setDriver(driver);
-		tripBooking.setBill(0);
+
 
 		return  tripBooking;
 	}
