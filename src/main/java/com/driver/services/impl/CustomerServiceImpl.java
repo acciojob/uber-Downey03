@@ -27,12 +27,12 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public void register(Customer customer) {
 		//Save the customer in database
-		Customer customer1 = new Customer();
-		customer1.setMobile(customer.getMobile());
-		customer1.setPassword(customer.getPassword());
-		customer1.setTripBookingList(new ArrayList<>());
+//		Customer customer1 = new Customer();
+//		customer1.setMobile(customer.getMobile());
+//		customer1.setPassword(customer.getPassword());
+//		customer1.setTripBookingList(new ArrayList<>());
 
-		customerRepository2.save(customer1);
+		customerRepository2.save(customer);
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
 		//Book the driver with lowest driverId who is free (cab available variable is Boolean.TRUE). If no driver is available, throw "No cab available!" exception
 		//Avoid using SQL query
 		List<Driver> drivers = driverRepository2.findAll();
-		if(drivers.size() == 0) throw new RuntimeException();
+		if(drivers.size() == 0) throw new Exception("No cab available!");
 
 		TripBooking tripBooking = new TripBooking();
 
